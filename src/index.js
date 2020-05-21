@@ -1,3 +1,6 @@
+// we use requestAnimationFrame to be called by the browser before every repaint
+let requestAnimationFrame;
+
 // Get the top position of an element in the document
 const getTop = function(element, start) {
   // return value of html.getBoundingClientRect().top ... IE : 0, other browsers : -pageYOffset
@@ -5,14 +8,15 @@ const getTop = function(element, start) {
   return element.getBoundingClientRect().top + start;
 };
 
-// we use requestAnimationFrame to be called by the browser before every repaint
-const requestAnimationFrame = window.requestAnimationFrame ||
-window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
-function(fn) {
-  window.setTimeout(fn, 16);
-};
-
 export const smoothScroll = function({ scrollTo, offset = 0, duration = 500, container = window, updateHistory = true, hash }) {
+  if (!requestAnimationFrame) {
+    requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || 
+    window.webkitRequestAnimationFrame ||
+    function(fn) {
+      window.setTimeout(fn, 16);
+    };
+  }
+  
   // Using the history api to solve issue: back doesn't work
   // most browser don't update :target when the history api is used:
   // THIS IS A BUG FROM THE BROWSERS.
