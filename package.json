@@ -27,7 +27,7 @@
   "files": [
     "dist",
     "types/index.d.ts",
-    "types/vue.d.ts"
+    "types/vue-injections.d.ts"
   ],
   "devDependencies": {
     "@babel/core": "^7.6.4",
