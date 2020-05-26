@@ -1,3 +1,14 @@
+v1.3.0 / 2020-04-13
+==================
+
+  * deps: update
+  * fix: Set output.globalObject to "this" to fix SSR (https://github.com/Yuliang-Lee/vue2-smooth-scroll/pull/19)
+
+v1.2.0 / 2020-01-18
+==================
+
+  * feat: use in component
+  * Document updateHistory options (#13)
 
 v1.1.1 / 2019-11-02
 ==================

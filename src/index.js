@@ -8,10 +8,11 @@ const getTop = function(element, start) {
   return element.getBoundingClientRect().top + start;
 };
 
-export const smoothScroll = function({ scrollTo, offset = 0, duration = 500, container = window, updateHistory = true, hash }) {
+const smoothScrollCtx = Symbol('smoothScrollCtx')
+
+function _smoothScroll({ scrollTo, offset, duration, container, updateHistory, hash }) {
   if (!requestAnimationFrame) {
-    requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || 
-    window.webkitRequestAnimationFrame ||
+    requestAnimationFrame = window.requestAnimationFrame ||
     function(fn) {
       window.setTimeout(fn, 16);
     };
@@ -21,6 +22,7 @@ export const smoothScroll = function({ scrollTo, offset = 0, duration = 500, con
   // most browser don't update :target when the history api is used:
   // THIS IS A BUG FROM THE BROWSERS.
   if (updateHistory && window.history.pushState && location.hash !== hash) window.history.pushState('', '', hash);
+
 
   const startPoint = container.scrollTop || window.pageYOffset;
   // Get the top position of an element in the document
@@ -52,44 +54,61 @@ export const smoothScroll = function({ scrollTo, offset = 0, duration = 500, con
 
 const VueSmoothScroll = {
   install(Vue, config) {
+    const defaultValue = {
+      duration: 500,
+      offset: 0,
+      container: window,
+      updateHistory: true,
+    };
+
     Vue.directive('smooth-scroll', {
-      inserted(el, binding) {
+      inserted(el, binding, vnode) {
         // Do not initialize smoothScroll when running server side, handle it in client
         // We do not want this script to be applied in browsers that do not support those
         // That means no smoothscroll on IE9 and below.
         if (typeof window !== 'object' || window.pageYOffset === undefined) return;
 
-        const defaultValue = {
-          duration: 500,
-          offset: 0,
-          container: window,
-          updateHistory: true,
-        };
+        const hash = vnode.data.attrs.href;
 
+        let resolvedConfig = Object.assign({}, defaultValue);
         if (config) {
-          Object.assign(defaultValue, config);
+          Object.assign(resolvedConfig, config);
         }
 
         let { duration, offset, container, updateHistory } = binding.value || {};
-        duration = duration || defaultValue.duration;
-        offset = offset || defaultValue.offset;
-        container = container || defaultValue.container;
-        updateHistory = updateHistory !== undefined ? updateHistory : defaultValue.updateHistory;
+        duration = duration || resolvedConfig.duration;
+        offset = offset || resolvedConfig.offset;
+        container = container || resolvedConfig.container;
+        updateHistory = updateHistory !== undefined ? updateHistory : resolvedConfig.updateHistory;
 
         if (typeof container === 'string') {
           container = document.querySelector(container);
         }
 
-        // Attach the smoothscroll function
-        el.addEventListener('click', function(ev) {
+        const clickHandler = function(ev) {
           ev.preventDefault();
-          const scrollTo = document.getElementById(this.hash.substring(1));
+          const scrollTo = document.getElementById(hash.substring(1));
           if (!scrollTo) return; // Do not scroll to non-existing node
 
-          smoothScroll({ scrollTo, offset, duration, container, updateHistory, hash: this.hash });
-        });
+          _smoothScroll({ scrollTo, offset, duration, container, updateHistory, hash });
+        }
+        // Attach the smoothscroll function
+        el.addEventListener('click', clickHandler);
+
+        el[smoothScrollCtx] = {
+          clickHandler
+        }
+      },
+      unbind(el) {
+        el.removeEventListener('click', el[smoothScrollCtx].clickHandler)
+        el[smoothScrollCtx] = null
       }
     });
+
+    Vue.prototype.$smoothScroll = (args) => {
+      const resolvedArgs = Object.assign({}, defaultValue, config, args);
+      return _smoothScroll(resolvedArgs)
+    }
   }
 };
 

@@ -27,24 +27,36 @@ import vueSmoothScroll from 'vue2-smooth-scroll'
 Vue.use(vueSmoothScroll)
 ```
 
-## Usage
+## Directive usage
 ``` html
 <a href="#div-id" v-smooth-scroll>Anchor</a>
 <div id="div-id"></div>
 ```
+
+## Programmatic usage
+``` js
+const exampleElement = this.$refs.exampleElement || this.$el || document.getElementById(...)
+this.$smoothScroll({
+  scrollTo: exampleElement,
+  hash: '#exampleHash' // only required if updateHistory is true
+  ... // optional overrides for global config
+})
+```
+
 ## Custom options
 ### Defaults
 ``` js
   {
     duration: 500, // Animation speed
     offset: 0, // Offset from element, you can use positive or negative values
-    container: '', // the scroll container, default is window,use document.querySelector to query the Element
+    container: '', // the scroll container, default is window,use document.querySelector to query the Element,
+    updateHistory: true //Push hash to history or not
   }
 ```
 ### Example:
 ``` html
 <div id="container">
-  <a href="#div-id" v-smooth-scroll="{ duration: 1000, offset: -50, container: '#container' }">Anchor</a>
+  <a href="#div-id" v-smooth-scroll="{ duration: 1000, offset: -50, container: '#container', updateHistory: false }">Anchor</a>
   <div id="div-id"></div>
 </div>
 ```
