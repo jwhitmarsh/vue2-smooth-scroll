@@ -1,8 +1,9 @@
 import Vue from "vue";
-import { smoothScroll } from "./index";
+
+import { SmoothScrollOptions } from "./index";
 
 declare module "vue/types/vue" {
   interface Vue {
-    $smoothScroll: typeof smoothScroll;
+    $smoothScroll(args: SmoothScrollOptions): void;
   }
 }

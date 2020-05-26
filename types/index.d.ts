@@ -1,16 +1,17 @@
-import _Vue, { PluginFunction } from "vue";
+import Vue, { PluginFunction } from "vue";
 
 // augment typings of Vue.js
 import "./vue-injections";
 
-interface SmoothScrollOptions {
+export interface SmoothScrollOptions {
   scrollTo: Element;
   duration?: number;
   offset?: number;
+  container?: Element | string;
   updateHistory?: boolean;
+  hash?: string; // required if updateHistory is true
 }
 
-export declare function smoothScroll(args: SmoothScrollOptions): void;
-
 declare const Vue2SmoothScroll: PluginFunction<SmoothScrollOptions>;
+
 export default Vue2SmoothScroll;
